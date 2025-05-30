@@ -8,7 +8,7 @@ import authorizeAxiosInstace from '~/utils/authorizeAxios'
 export const fetchBoardDetailsApi = createAsyncThunk(
   'activeBoard/fetchActiveBoard',
   async (boardId) => {
-    const response = await authorizeAxiosInstace.get(`http://localhost:8011/v1/boards/${boardId}`)
+    const response = await authorizeAxiosInstace.get(`https://be-doan-8bvg.onrender.com/v1/boards/${boardId}`)
     return response.data
   }
 )

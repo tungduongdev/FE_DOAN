@@ -2,11 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { toast } from 'react-toastify'
 import authorizeAxiosInstace from '~/utils/authorizeAxios'
 
+const API_BE_URL = 'https://be-doan-8bvg.onrender.com/'
+
 // các hành động gọi api hoặc xử lý dữ liệu không đồng bộ dùng middleware createAsyncThunk đi kèm với extraReducers
 export const loginUserApi = createAsyncThunk(
   'currentUser/loginUserApi',
   async (data) => {
-    const response = await authorizeAxiosInstace.post('http://localhost:8011/v1/users/login', data)
+    const response = await authorizeAxiosInstace.post(`${API_BE_URL}v1/users/login`, data)
     return response.data
   }
 )
@@ -14,7 +16,7 @@ export const loginUserApi = createAsyncThunk(
 export const logoutUserApi = createAsyncThunk(
   'user/logoutUserApi',
   async (showSuccessMessage = true) => {
-    const response = await authorizeAxiosInstace.delete('http://localhost:8011/v1/users/logout')
+    const response = await authorizeAxiosInstace.delete(`${API_BE_URL}v1/users/logout`)
     if (showSuccessMessage) {
       toast.success('Logged out successfully')
     }
@@ -25,7 +27,7 @@ export const logoutUserApi = createAsyncThunk(
 export const updateUserInfoApi = createAsyncThunk(
   'currentUser/updateUserInfoApi',
   async (data) => {
-    const response = await authorizeAxiosInstace.put('http://localhost:8011/v1/users/update', data)
+    const response = await authorizeAxiosInstace.put(`${API_BE_URL}v1/users/update`, data)
     console.log('response.data', response.data)
     return response.data
   }
