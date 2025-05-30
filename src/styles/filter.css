@@ -1,0 +1,56 @@
+/* CSS cho việc lọc card trong Trello */
+
+/* Ẩn tất cả các card khi filter đang hoạt động trừ khi có một trong các class cụ thể */
+.filter-completed-active
+  .trello-card:not(.card-completed):not(.card-placeholder) {
+  display: none !important;
+}
+
+.filter-incomplete-active
+  .trello-card:not(.card-incomplete):not(.card-placeholder) {
+  display: none !important;
+}
+
+.filter-due-soon-active
+  .trello-card:not(.card-due-soon):not(.card-placeholder) {
+  display: none !important;
+}
+
+.filter-overdue-active .trello-card:not(.card-overdue):not(.card-placeholder) {
+  display: none !important;
+}
+
+/* Hiển thị các card placeholder để đảm bảo UI không bị vỡ */
+.card-placeholder {
+  visibility: visible !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+/* Thêm chỉ báo trực quan rằng lọc đang hoạt động */
+.filter-active .board-filter-indicator {
+  display: inline-flex !important;
+}
+
+.board-filter-indicator {
+  display: none;
+}
+
+/* Ẩn column không có card hiển thị */
+.filter-completed-active
+  .trello-column:not(:has(.card-completed:not(.card-placeholder))),
+.filter-incomplete-active
+  .trello-column:not(:has(.card-incomplete:not(.card-placeholder))),
+.filter-due-soon-active
+  .trello-column:not(:has(.card-due-soon:not(.card-placeholder))),
+.filter-overdue-active
+  .trello-column:not(:has(.card-overdue:not(.card-placeholder))) {
+  display: none !important;
+}
+
+/* Đảm bảo Board vẫn có padding hợp lý khi nhiều column bị ẩn */
+.filter-active .board-content {
+  padding: 0 10px;
+}

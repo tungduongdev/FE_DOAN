@@ -1,0 +1,62 @@
+/* CSS FIX cho việc lọc card trong Trello */
+
+/* Quy tắc cơ bản - ẩn tất cả các card khi filter đang hoạt động */
+.filter-active .trello-card {
+  display: none !important;
+}
+
+/* Hiển thị các card phù hợp với filter */
+.filter-completed-active .card-completed {
+  display: block !important;
+}
+
+.filter-incomplete-active .card-incomplete {
+  display: block !important;
+}
+
+.filter-due-soon-active .card-due-soon {
+  display: block !important;
+}
+
+.filter-overdue-active .card-overdue {
+  display: block !important;
+}
+
+/* Xử lý card placeholder */
+.card-placeholder {
+  display: none !important;
+}
+
+/* Column chỉ hiển thị khi có ít nhất một card hiển thị */
+.filter-active .trello-column {
+  display: none !important;
+}
+
+.filter-completed-active
+  .trello-column:has(.card-completed:not(.card-placeholder)) {
+  display: block !important;
+}
+
+.filter-incomplete-active
+  .trello-column:has(.card-incomplete:not(.card-placeholder)) {
+  display: block !important;
+}
+
+.filter-due-soon-active
+  .trello-column:has(.card-due-soon:not(.card-placeholder)) {
+  display: block !important;
+}
+
+.filter-overdue-active
+  .trello-column:has(.card-overdue:not(.card-placeholder)) {
+  display: block !important;
+}
+
+/* Đảm bảo filter-indicator hiển thị đúng */
+.filter-active .board-filter-indicator {
+  display: inline-flex !important;
+}
+
+.board-filter-indicator {
+  display: none !important;
+}
