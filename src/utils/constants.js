@@ -4,7 +4,7 @@ if (process.env.BUILD_MODE === 'dev') {
   apiRoot = 'http://localhost:8011'
 }
 if (process.env.BUILD_MODE === 'production') {
-  apiRoot = 'https://trello-web-pink-iota.vercel.app'
+  apiRoot = 'https://be-doan-8bvg.onrender.com'
 }
 
 // let apiBackEnd = ''
