@@ -95,7 +95,7 @@ function Card({ card, columnId }) {
                   _id: `${targetColumn._id}-placeholder-card`,
                   boardId: targetColumn.boardId,
                   columnId: targetColumn._id,
-                  FE_PlaceholderCard: true
+                  FE_PlaceHoderCard: true
                 }
                 targetColumn.cards = [placeholderCard]
                 targetColumn.cardOrderIds = [placeholderCard._id]

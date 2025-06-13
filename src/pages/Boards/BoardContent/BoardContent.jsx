@@ -120,10 +120,10 @@ function BoardContent() {
 
         // ẩn card placeholder ở front-end để dữ liệu không bị lỗi khi thêm vào backend
         let prevCardOrderIds = nextColumns.find(column => column._id === oldColumnWhenDraggingCard._id)?.cardOrderIds || []
-        if (prevCardOrderIds[0].includes('-placeholder-card')) prevCardOrderIds = []
+        if (prevCardOrderIds.length > 0 && prevCardOrderIds[0]?.includes('-placeholder-card')) prevCardOrderIds = []
 
-        let nextCardOrderIds = nextColumns.find(column => column._id === nextOverColumn._id)?.cardOrderIds
-        nextCardOrderIds = nextCardOrderIds.filter(id => !id.includes('-placeholder-card'))
+        let nextCardOrderIds = nextColumns.find(column => column._id === nextOverColumn._id)?.cardOrderIds || []
+        nextCardOrderIds = nextCardOrderIds.filter(id => id && !id.includes('-placeholder-card'))
 
         moveCardToDifferentColumnApi({
           currentCardId,

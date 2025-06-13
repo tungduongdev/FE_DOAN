@@ -3,9 +3,18 @@ import Card from './Card/Card'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 
 function ListCards({ cards, columnId }) {
-  //console.log(cards.length)
+  // Tạo card placeholder đơn giản khi column trống
+  const placeholderCard = {
+    _id: `${columnId}-placeholder-card`,
+    columnId: columnId,
+    FE_PlaceHoderCard: true
+  }
+
+  // Nếu không có card thật nào, thêm placeholder để có thể kéo thả
+  const displayCards = (cards && cards.length > 0) ? cards : [placeholderCard]
+
   return (
-    <SortableContext items={cards?.map(c => c._id)} strategy={verticalListSortingStrategy}>
+    <SortableContext items={displayCards?.map(c => c._id)} strategy={verticalListSortingStrategy}>
       <Box
         className="dnd-scrollable dnd-container"
         sx={{
@@ -21,13 +30,9 @@ function ListCards({ cards, columnId }) {
             width: '8px'
           }
         }}>
-        {cards?.map(card => (
+        {displayCards?.map(card => (
           <Card key={card._id} card={card} columnId={columnId} />
         ))}
-        {/* Only render this placeholder for empty column display */}
-        {!cards || cards.length === 0 ? (
-          <Card temporartHideMedia columnId={columnId} />
-        ) : null}
       </Box>
     </SortableContext>
   )
