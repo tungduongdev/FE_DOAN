@@ -5,6 +5,7 @@ import { selectCurrentUser } from '~/redux/User/userSlide'
 import { removeBoardMemberApi, changeBoardMemberRoleApi } from '~/apis'
 import { toast } from 'react-toastify'
 import { cloneDeep } from 'lodash'
+import dayjs from 'dayjs'
 import {
   Box,
   Typography,
@@ -48,6 +49,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
 import LockOpenIcon from '@mui/icons-material/LockOpen'
 import LockIcon from '@mui/icons-material/Lock'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
 
 const StyledTableContainer = styled(TableContainer)(({ theme }) => ({
   borderRadius: 16,
@@ -245,6 +247,103 @@ function TeamManagement() {
     ...(activeBoard.members || []).map(user => ({ ...user, role: 'MEMBER' }))
   ]
 
+  // Function to export team data to Excel
+  const exportTeamToExcel = () => {
+    try {
+      // Create CSV format data
+      const csvData = []
+
+      // Header
+      csvData.push([`Team Management Report - ${activeBoard.title}`, '', '', ''])
+      csvData.push([`Generated on: ${dayjs().format('DD/MM/YYYY HH:mm')}`, '', '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Team Statistics
+      csvData.push(['Team Statistics', '', '', ''])
+      csvData.push(['Total Users', allMembers.length, '', ''])
+      csvData.push(['Owners', activeBoard.owners?.length || 0, '', ''])
+      csvData.push(['Members', activeBoard.members?.length || 0, '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Team Members Details
+      csvData.push(['Team Members Details', '', '', ''])
+      csvData.push(['Name', 'Email', 'Role', 'Join Date'])
+
+      // Add owners
+      activeBoard.owners?.forEach(owner => {
+        csvData.push([
+          owner.displayName || 'Unknown User',
+          owner.email,
+          'Owner',
+          dayjs(owner.createdAt).format('DD/MM/YYYY')
+        ])
+      })
+
+      // Add members
+      activeBoard.members?.forEach(member => {
+        csvData.push([
+          member.displayName || 'Unknown User',
+          member.email,
+          'Member',
+          dayjs(member.createdAt).format('DD/MM/YYYY')
+        ])
+      })
+      csvData.push(['', '', '', ''])
+
+      // Board Permissions
+      csvData.push(['Board Permissions', '', '', ''])
+      csvData.push(['Role', 'Permissions', '', ''])
+      csvData.push(['Owner', 'Full control - Can manage board settings, invite/remove members, delete board', '', ''])
+      csvData.push(['Member', 'Can view and edit - Can create/edit cards, add comments, but cannot manage board settings', '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Activity Summary by User
+      csvData.push(['User Activity Summary', '', '', ''])
+      csvData.push(['User Name', 'Assigned Tasks', 'Role', 'Email'])
+
+      allMembers.forEach(member => {
+        let assignedTasks = 0
+        activeBoard.columns?.forEach(column => {
+          column.cards?.forEach(card => {
+            if (card.memberIds?.includes(member._id)) {
+              assignedTasks++
+            }
+          })
+        })
+
+        csvData.push([
+          member.displayName || 'Unknown User',
+          assignedTasks,
+          member.role,
+          member.email
+        ])
+      })
+
+      // Convert to CSV string
+      const csvContent = csvData.map(row =>
+        row.map(cell => `"${cell}"`).join(',')
+      ).join('\n')
+
+      // Create and download file
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      link.setAttribute('href', url)
+      link.setAttribute('download', `Team_Management_${activeBoard.title}_${dayjs().format('YYYY-MM-DD')}.csv`)
+      link.style.visibility = 'hidden'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success('Team data exported successfully!')
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export team data')
+    }
+  }
+
   return (
     <>
       {/* Header with stats */}
@@ -254,22 +353,48 @@ function TeamManagement() {
             <PeopleIcon sx={{ mr: 1, color: '#000' }} />
             Team Management
           </Typography>
-          {isCurrentUserOwner && (
-            <StyledButton
-              variant="contained"
-              color="primary"
-              startIcon={<PersonAddIcon />}
-              onClick={handleOpenInviteDialog}
-              sx={{
-                backgroundColor: '#000',
-                '&:hover': {
-                  backgroundColor: '#1976d2'
-                }
-              }}
-            >
-              Invite Member
-            </StyledButton>
-          )}
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Tooltip title="Export team data to Excel">
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FileDownloadIcon />}
+                onClick={exportTeamToExcel}
+                sx={{
+                  background: 'linear-gradient(45deg, #ff9800 30%, #ffb74d 90%)',
+                  boxShadow: '0 3px 5px 2px rgba(255, 152, 0, .3)',
+                  color: 'white',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  px: 2,
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #f57c00 30%, #ffa726 90%)',
+                    boxShadow: '0 4px 8px 3px rgba(255, 152, 0, .3)',
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                Export Team
+              </Button>
+            </Tooltip>
+            {isCurrentUserOwner && (
+              <StyledButton
+                variant="contained"
+                color="primary"
+                startIcon={<PersonAddIcon />}
+                onClick={handleOpenInviteDialog}
+                sx={{
+                  backgroundColor: '#a0a0a0',
+                  '&:hover': {
+                    backgroundColor: '#1976d2'
+                  }
+                }}
+              >
+                Invite Member
+              </StyledButton>
+            )}
+          </Box>
         </Box>
 
         <Zoom in={true} style={{ transitionDelay: '100ms' }}>
@@ -305,7 +430,7 @@ function TeamManagement() {
                         boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
                       }}
                     >
-                      <Typography variant="h4" sx={{ color: 'white', fontWeight: 600 }}>
+                      <Typography variant="h4" sx={{ color: '#fff', fontWeight: 600 }}>
                         {activeBoard.owners?.length || 0}
                       </Typography>
                     </Avatar>
@@ -313,7 +438,7 @@ function TeamManagement() {
                   <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 600, color: '#3c4858' }}>
                     Owners
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="#000">
                     Have full control
                   </Typography>
                 </Box>
@@ -350,7 +475,7 @@ function TeamManagement() {
                   <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 600, color: '#3c4858' }}>
                     Members
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="#000">
                     Can view and edit
                   </Typography>
                 </Box>
@@ -387,7 +512,7 @@ function TeamManagement() {
                   <Typography variant="subtitle1" sx={{ mt: 2, fontWeight: 600, color: '#3c4858' }}>
                     Total Users
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
+                  <Typography variant="body2" color="#000">
                     Active on this board
                   </Typography>
                 </Box>

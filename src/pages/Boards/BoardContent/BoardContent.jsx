@@ -21,7 +21,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 import Column from './ListColumns/Column/Column'
 import Card from './ListColumns/Column/ListCards/Card/Card'
 import { cloneDeep } from 'lodash'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { updateBoard, updateColumn } from '~/apis'
 import { useDispatch, useSelector } from 'react-redux'
 import { updateCurrentActiveBoard } from '~/redux/activeBoard/activeBoardSlice'
@@ -37,8 +37,8 @@ function BoardContent() {
   //console.log('moveColumns', moveColumns)
   //Yêu cầu sử dụng PointerSensor khi chuot di chuyển 10px
   //const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
-  const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 10 } })
-  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 500 } })
+  const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 0 } })
+  const touchSensor = useSensor(TouchSensor, { activationConstraint: { delay: 100, tolerance: 0 } })
   const sensor = useSensors(mouseSensor, touchSensor)
 
   const [oderedColumns, setOderedColumn] = React.useState([])
@@ -57,12 +57,12 @@ function BoardContent() {
     setOderedColumn(board.columns)
     //console.log('oderedColumns', oderedColumns)
   }, [board])
-  //tim column theo cardId
-  const findColumnByCardId = (cardId) => {
+  //tim column theo cardId - optimized with useMemo
+  const findColumnByCardId = useCallback((cardId) => {
     //doan nay nen dung card that vi cardId vi o buoc handleDragOver chung ta
     //se lam du lieu cho card hoan chinh truoc roi moi tao ra cardIds moi
     return oderedColumns.find(c => c?.cards?.map(card => card._id)?.includes(cardId))
-  }
+  }, [oderedColumns])
   const moveCardBetWeenDifferentColumns = (
     overColumn,
     overCardId,
@@ -262,10 +262,13 @@ function BoardContent() {
   }
 
   const dropAnimation = {
+    duration: 200,
+    easing: 'ease-out',
     sideEffects: defaultDropAnimationSideEffects({
       styles: {
         active: {
-          opacity: 0.5
+          opacity: 0.6,
+          transform: 'scale(1.02)'
         }
       }
     })
@@ -276,71 +279,71 @@ function BoardContent() {
       return closestCorners({ ...args })
     }
 
+    // Sử dụng pointerWithin để có độ chính xác cao hơn
     const pointerIntersection = pointerWithin(args)
 
-    if (pointerIntersection?.length < 0) return
+    if (!pointerIntersection?.length) {
+      // Fallback to rect intersection if no pointer intersection
+      const rectIntersections = rectIntersection(args)
+      return rectIntersections?.length ? rectIntersections : (lastOverId.current ? [{ id: lastOverId.current }] : [])
+    }
 
-    //thuat toan phat hien va cham closestCorners se tra ve du lieu 1 mang cac va cham
-    // const intersections = pointerIntersection?.length > 0 ? pointerIntersection : rectIntersection(args)
-
-    //Tim overid dau tien trong mang va cham
+    // Tìm overId đầu tiên trong mảng va chạm
     let overId = getFirstCollision(pointerIntersection, 'id')
+
     if (overId) {
-      const checkcolumn = oderedColumns.find(column => column._id === overId)
-      if (checkcolumn) {
-        overId = closestCorners({
-          ...args,
-          droppableContainers: args.droppableContainers.filter(container => {
-            return (container.id !== overId) && (checkcolumn?.cardOrderIds?.includes(container.id))
+      const checkColumn = oderedColumns.find(column => column._id === overId)
+      if (checkColumn) {
+        // Chỉ tìm trong các cards của column này
+        const cardsInColumn = args.droppableContainers.filter(container =>
+          container.id !== overId && checkColumn?.cardOrderIds?.includes(container.id)
+        )
+
+        if (cardsInColumn.length > 0) {
+          const closestCard = closestCenter({
+            ...args,
+            droppableContainers: cardsInColumn
           })
-        })[0]?.id
+          overId = closestCard[0]?.id || overId
+        }
       }
+
       lastOverId.current = overId
       return [{ id: overId }]
     }
 
     return lastOverId.current ? [{ id: lastOverId.current }] : []
-  }, [activeDragItemType])
+  }, [activeDragItemType, oderedColumns])
   return (
-    //thuat toan phat hien va cham closestCorners
-    <DndContext sensors={sensor}
+    <DndContext
+      sensors={sensor}
+      collisionDetection={collisionDetectionStrategy}
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
-      //thuat toan phat hien va cham closestCorners se bi loi nen thay vao do bang collisionDetectionStrategy
-      collisionDetection={collisionDetectionStrategy}
     >
-      <Box
-        sx={{
-          bgcolor: (theme) => theme.palette.background.default,
+      <div className={activeDragItemId ? "dnd-active" : ""}>
+        <Box sx={{
+          bgcolor: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #1a1d23 0%, #2c3e50 100%)'
+            : 'linear-gradient(135deg, #fafbfc 0%, #ebecf0 100%)',
+          backgroundImage: (theme) => theme.palette.mode === 'dark'
+            ? 'linear-gradient(135deg, #1a1d23 0%, #2c3e50 100%)'
+            : 'linear-gradient(135deg, #fafbfc 0%, #f4f5f7 50%, #dfe1e6 100%)',
           width: '100%',
           height: (theme) => theme.trello.boardContentHeigh,
-          p: '0 5px'
-        }}
-      >
-        <Box
-          className="board-content"
-          sx={{
-            display: 'flex',
-            width: '100%',
-            height: (theme) => theme.trello.boardContentHeigh
-          }}
-        >
+          p: '10px 0',
+          minHeight: '100vh',
+          overflow: 'hidden'
+        }}>
           <ListColumns columns={oderedColumns} />
           <DragOverlay dropAnimation={dropAnimation}>
-            {(!activeDragItemId || activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN) && (
-              <Box >
-                <Column column={activeDragItemData} />
-              </Box>
-            )}
-            {(!activeDragItemId || activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD) && (
-              <Box >
-                <Card card={activeDragItemData} />
-              </Box>
-            )}
+            {!activeDragItemType && null}
+            {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.COLUMN && <Column column={activeDragItemData} />}
+            {activeDragItemType === ACTIVE_DRAG_ITEM_TYPE.CARD && <Card card={activeDragItemData} />}
           </DragOverlay>
         </Box>
-      </Box>
+      </div>
     </DndContext>
   )
 }

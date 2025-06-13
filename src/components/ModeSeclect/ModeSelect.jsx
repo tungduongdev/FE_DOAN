@@ -1,4 +1,3 @@
-
 import { Box, Container } from '@mui/material'
 import {
   useColorScheme
@@ -20,55 +19,88 @@ function ModeSelect() {
   }
 
   return (
-    <FormControl sx={{ m: 1, minWidth:'120px' }} size="small">
+    <FormControl sx={{ m: 1, minWidth: '140px' }} size="small">
       <InputLabel sx={{
         color: 'white',
+        fontSize: '0.875rem',
+        fontWeight: 500,
         '&.Mui-focused': {
           color: 'white'
         }
-      }
-      } id="label-select-dark-light-mode">Mode</InputLabel>
+      }} id="label-select-dark-light-mode">Theme</InputLabel>
       <Select
         labelId="label-select-dark-light-mode"
         id="select-dark-light-mode"
         value={mode}
-        label="Mode"
+        label="Theme"
         onChange={handleChange}
-        sx={ {
+        sx={{
           color: 'white',
+          fontSize: '0.875rem',
+          borderRadius: '8px',
           '& .MuiSelect-icon': {
             color: 'white'
           },
           '.MuiOutlinedInput-notchedOutline': {
-            borderColor: 'white'
+            borderColor: 'rgba(255,255,255,0.3)',
+            borderWidth: '1px'
           },
           '& .MuiSelect-selectMenu': {
             color: 'white'
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'white'
+            borderColor: 'white',
+            borderWidth: '1px'
           },
-          '&.Mui-focusted .MuiOutlinedInput-notchedOutline': {
-            borderColor: 'white'
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: 'white',
+            borderWidth: '2px'
+          },
+          '& .MuiSelect-select': {
+            paddingY: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
           }
-        } }
+        }}
       >
-        <MenuItem value='light'>
-          <Box style={{ display:'flex', alignItems: 'center', gap: 1 }}>
-            <LightModeIcon fontSize='small'/>
-          Light
+        <MenuItem value='light' sx={{
+          borderRadius: '6px',
+          margin: '4px',
+          '&:hover': {
+            backgroundColor: 'primary.light',
+            color: 'white'
+          }
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <LightModeIcon fontSize='small' sx={{ color: 'orange' }} />
+            <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>Light</Box>
           </Box>
         </MenuItem>
-        <MenuItem value='dark'>
-          <Box style={{ display:'flex', alignItems: 'center', gap: 1 }}>
-            <DarkModeOutlinedIcon fontSize='small'/>
-          Dark
+        <MenuItem value='dark' sx={{
+          borderRadius: '6px',
+          margin: '4px',
+          '&:hover': {
+            backgroundColor: 'primary.light',
+            color: 'white'
+          }
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <DarkModeOutlinedIcon fontSize='small' sx={{ color: 'grey.600' }} />
+            <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>Dark</Box>
           </Box>
         </MenuItem>
-        <MenuItem value='system'>
-          <Box display='flex' alignItems='center' gap={1}>
-            <SystemUpdateAltIcon fontSize='small'/>
-          System
+        <MenuItem value='system' sx={{
+          borderRadius: '6px',
+          margin: '4px',
+          '&:hover': {
+            backgroundColor: 'primary.light',
+            color: 'white'
+          }
+        }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <SystemUpdateAltIcon fontSize='small' sx={{ color: 'info.main' }} />
+            <Box sx={{ fontSize: '0.875rem', fontWeight: 500 }}>System</Box>
           </Box>
         </MenuItem>
       </Select>

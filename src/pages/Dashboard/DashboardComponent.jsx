@@ -7,7 +7,7 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import { Container, Paper, Divider, Avatar, AvatarGroup, List, ListItem, ListItemAvatar, ListItemText, LinearProgress, Zoom } from '@mui/material'
+import { Container, Paper, Divider, Avatar, AvatarGroup, List, ListItem, ListItemAvatar, ListItemText, LinearProgress, Zoom, Button, Tooltip, IconButton } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import DashboardIcon from '@mui/icons-material/Dashboard'
 import PeopleIcon from '@mui/icons-material/People'
@@ -16,7 +16,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import TrendingUpIcon from '@mui/icons-material/TrendingUp'
 import BusinessCenterIcon from '@mui/icons-material/BusinessCenter'
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts'
+import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
 
 const COLORS = ['#00C49F', '#0088FE', '#FFBB28', '#FF8042', '#A569BD', '#5DADE2'];
 
@@ -106,6 +109,114 @@ function DashboardComponent() {
     }
   }, [activeBoard])
 
+  // Function to export dashboard data to Excel
+  const exportDashboardToExcel = () => {
+    try {
+      // Create CSV format data
+      const csvData = []
+
+      // Header
+      csvData.push([`Dashboard Report - ${activeBoard.title}`, '', '', ''])
+      csvData.push([`Generated on: ${dayjs().format('DD/MM/YYYY HH:mm')}`, '', '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Overview Summary
+      csvData.push(['Overview Summary', '', '', ''])
+      csvData.push(['Total Tasks', stats.totalTasks, '', ''])
+      csvData.push(['Completed Tasks', stats.completedTasks, '', ''])
+      csvData.push(['In Progress Tasks', stats.inProgressTasks, '', ''])
+      csvData.push(['Pending Tasks', stats.pendingTasks, '', ''])
+      csvData.push(['Team Members', stats.totalMembers, '', ''])
+      csvData.push(['Completion Rate', `${completionPercentage}%`, '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Column Details
+      csvData.push(['Column Details', '', '', ''])
+      csvData.push(['Column Name', 'Total Cards', 'Order', 'Created Date'])
+      activeBoard.columns.forEach((column, index) => {
+        const realCards = column.cards.filter(card => !card.FE_PlaceholderCard)
+        csvData.push([
+          column.title,
+          realCards.length,
+          index + 1,
+          dayjs(column.createdAt).format('DD/MM/YYYY')
+        ])
+      })
+      csvData.push(['', '', '', ''])
+
+      // All Tasks Details
+      csvData.push(['All Tasks Details', '', '', ''])
+      csvData.push(['Task Title', 'Column', 'Description', 'Due Date', 'Assigned Members', 'Created Date'])
+
+      activeBoard.columns.forEach(column => {
+        const realCards = column.cards.filter(card => !card.FE_PlaceholderCard)
+        realCards.forEach(card => {
+          const memberNames = card.memberIds?.map(memberId => {
+            const member = activeBoard.FE_allUsers?.find(user => user._id === memberId)
+            return member?.displayName || 'Unknown User'
+          }).join(', ') || 'Unassigned'
+
+          csvData.push([
+            card.title,
+            column.title,
+            card.description?.replace(/\n/g, ' ') || 'No description',
+            card.dueDate ? dayjs(card.dueDate).format('DD/MM/YYYY') : 'No due date',
+            memberNames,
+            dayjs(card.createdAt).format('DD/MM/YYYY')
+          ])
+        })
+      })
+      csvData.push(['', '', '', ''])
+
+      // Team Members Details
+      csvData.push(['Team Members', '', '', ''])
+      csvData.push(['Name', 'Email', 'Role', 'Join Date'])
+
+      // Add owners
+      activeBoard.owners.forEach(owner => {
+        csvData.push([
+          owner.displayName || 'Unknown User',
+          owner.email,
+          'Owner',
+          dayjs(owner.createdAt).format('DD/MM/YYYY')
+        ])
+      })
+
+      // Add members
+      activeBoard.members.forEach(member => {
+        csvData.push([
+          member.displayName || 'Unknown User',
+          member.email,
+          'Member',
+          dayjs(member.createdAt).format('DD/MM/YYYY')
+        ])
+      })
+
+      // Convert to CSV string
+      const csvContent = csvData.map(row =>
+        row.map(cell => `"${cell}"`).join(',')
+      ).join('\n')
+
+      // Create and download file
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      link.setAttribute('href', url)
+      link.setAttribute('download', `Dashboard_${activeBoard.title}_${dayjs().format('YYYY-MM-DD')}.csv`)
+      link.style.visibility = 'hidden'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success('Dashboard exported successfully!')
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export dashboard')
+    }
+  }
+
   if (!activeBoard) {
     return null;
   }
@@ -116,9 +227,35 @@ function DashboardComponent() {
     <Grid container spacing={3}>
       {/* Overview Stats Cards */}
       <Grid item xs={12}>
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: 600, color: '#fff' }}>
-          Overview
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h5" sx={{ fontWeight: 600, color: '#fff' }}>
+            Overview
+          </Typography>
+          <Tooltip title="Export dashboard to Excel">
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<FileDownloadIcon />}
+              onClick={exportDashboardToExcel}
+              sx={{
+                background: 'linear-gradient(45deg, #2196f3 30%, #64b5f6 90%)',
+                boxShadow: '0 3px 5px 2px rgba(33, 150, 243, .3)',
+                color: 'white',
+                fontWeight: 600,
+                textTransform: 'none',
+                borderRadius: 2,
+                px: 2,
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1976d2 30%, #42a5f5 90%)',
+                  boxShadow: '0 4px 8px 3px rgba(33, 150, 243, .3)',
+                  transform: 'translateY(-1px)'
+                }
+              }}
+            >
+              Export Dashboard
+            </Button>
+          </Tooltip>
+        </Box>
       </Grid>
       <Grid item xs={12} sm={6} md={3}>
         <Zoom in={true} style={{ transitionDelay: '100ms' }}>
@@ -269,7 +406,7 @@ function DashboardComponent() {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip
+                    <RechartsTooltip
                       formatter={(value, name) => [`${value} tasks`, name]}
                       contentStyle={{
                         borderRadius: 8,
@@ -303,7 +440,7 @@ function DashboardComponent() {
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
                     <XAxis dataKey="day" stroke="rgba(255,255,255,0.6)" />
                     <YAxis stroke="rgba(255,255,255,0.6)" />
-                    <Tooltip
+                    <RechartsTooltip
                       contentStyle={{
                         borderRadius: 8,
                         backgroundColor: 'rgba(40, 44, 52, 0.9)',

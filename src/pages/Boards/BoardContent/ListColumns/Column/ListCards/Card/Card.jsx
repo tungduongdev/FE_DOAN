@@ -43,9 +43,14 @@ function Card({ card, columnId }) {
   } = useSortable({ id: card?._id, data: card ? { ...card } : {} })
   const dndKitCardStyles = {
     transform: CSS.Translate.toString(transform),
-    transition,
-    opacity: isDragging ? 0.5 : undefined,
-    border: isDragging ? '1px dashed #ccc' : '1px solid #ccc'
+    transition: isDragging ? 'none' : transition,
+    opacity: isDragging ? 0.3 : undefined,
+    scale: isDragging ? 1.05 : 1,
+    rotate: isDragging ? '3deg' : '0deg',
+    zIndex: isDragging ? 999 : 'auto',
+    boxShadow: isDragging
+      ? '0 15px 35px rgba(0, 0, 0, 0.3), 0 5px 15px rgba(0, 0, 0, 0.2)'
+      : undefined
   }
   const shouldShowCardActions = () => {
     return !!card?.memberIds?.length || !!card?.comments?.length || !!card?.attachments?.length
@@ -222,31 +227,65 @@ function Card({ card, columnId }) {
       className={getCardStatusClasses()}
       sx={{
         cursor: 'pointer',
-        boxShadow: card?.FE_PlaceHoderCard ? 'unset' : '0 1px 1px rgba(0,0,0,0.2)',
+        boxShadow: card?.FE_PlaceHoderCard ? 'unset' : (theme) => theme.palette.mode === 'dark'
+          ? '0 2px 4px rgba(0,0,0,0.3)'
+          : '0 1px 4px rgba(0,0,0,0.08), 0 2px 8px rgba(0,82,204,0.06)',
         overflow: 'unset',
         height: card?.FE_PlaceHoderCard ? '0px' : 'fit-content',
         opacity: card?.FE_PlaceHoderCard ? 0 : 1,
         position: 'relative',
         borderLeft: card?.completed ? '4px solid #4caf50' : 'none',
-        transition: 'all 0.2s ease'
+        transition: 'all 0.2s ease-in-out',
+        bgcolor: (theme) => {
+          if (card?.FE_PlaceHoderCard) return 'transparent'
+          return theme.palette.mode === 'dark' ? 'grey.700' : 'background.paper'
+        },
+        border: (theme) => {
+          if (card?.FE_PlaceHoderCard) return 'none'
+          return theme.palette.mode === 'dark'
+            ? '1px solid rgba(255,255,255,0.08)'
+            : '1px solid rgba(0,0,0,0.08)'
+        },
+        borderRadius: '8px',
+        mb: 1,
+        '&:hover': {
+          transform: !card?.FE_PlaceHoderCard ? 'translateY(-1px)' : 'none',
+          boxShadow: !card?.FE_PlaceHoderCard ? (theme) => theme.palette.mode === 'dark'
+            ? '0 4px 8px rgba(0,0,0,0.4)'
+            : '0 3px 12px rgba(0,0,0,0.12), 0 4px 16px rgba(0,82,204,0.1)' : 'unset'
+        }
       }}>
       {/* Delete Button - visible only on hover */}
       {isHovered && !card?.FE_PlaceHoderCard && (
-        <Box sx={{ position: 'absolute', top: '4px', right: '4px', zIndex: 1, display: 'flex', gap: '4px' }}>
+        <Box sx={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          zIndex: 1,
+          display: 'flex',
+          gap: '4px',
+          bgcolor: 'rgba(255,255,255,0.95)',
+          borderRadius: '6px',
+          p: '2px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
           {/* Complete toggle button */}
           <IconButton
             size="small"
             color={card?.completed ? 'success' : 'default'}
             onClick={toggleCardCompletion}
             sx={{
-              opacity: 0.8,
-              backgroundColor: 'rgba(255,255,255,0.8)',
+              opacity: 0.9,
+              backgroundColor: card?.completed ? 'success.light' : 'grey.100',
+              color: card?.completed ? 'success.contrastText' : 'text.primary',
               '&:hover': {
                 opacity: 1,
-                backgroundColor: 'rgba(255,255,255,0.9)'
+                backgroundColor: card?.completed ? 'success.main' : 'grey.200',
+                transform: 'scale(1.1)'
               },
-              width: '24px',
-              height: '24px'
+              width: '28px',
+              height: '28px',
+              transition: 'all 0.2s ease'
             }}
           >
             <CheckCircleIcon fontSize="small" />
@@ -258,14 +297,17 @@ function Card({ card, columnId }) {
             color="error"
             onClick={handleDeleteCard}
             sx={{
-              opacity: 0.8,
-              backgroundColor: 'rgba(255,255,255,0.8)',
+              opacity: 0.9,
+              backgroundColor: 'error.light',
+              color: 'error.contrastText',
               '&:hover': {
                 opacity: 1,
-                backgroundColor: 'rgba(255,255,255,0.9)'
+                backgroundColor: 'error.main',
+                transform: 'scale(1.1)'
               },
-              width: '24px',
-              height: '24px'
+              width: '28px',
+              height: '28px',
+              transition: 'all 0.2s ease'
             }}
           >
             <DeleteIcon fontSize="small" />

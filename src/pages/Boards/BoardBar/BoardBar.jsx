@@ -35,20 +35,25 @@ import { useSelector } from 'react-redux'
 import { selectCurrentUser } from '~/redux/User/userSlide'
 
 const MENU_STYLE = {
-  color: 'white',
+  color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.contrastText',
   bgcolor: 'transparent',
   border: 'none',
   paddingX: '5px',
-  borderRadius: '4px',
+  borderRadius: '8px',
+  fontSize: '0.875rem',
+  fontWeight: 500,
   '& .MuiChip-icon': {
-    color: 'primary.main'
+    color: (theme) => theme.palette.mode === 'dark' ? 'primary.light' : 'primary.main'
   },
   '&:hover': {
-    bgcolor: 'primary.50'
+    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'primary.50',
+    transform: 'translateY(-1px)',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
   },
   '.MuiSvgIcon-root': {
-    color: 'white'
-  }
+    color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.contrastText'
+  },
+  transition: 'all 0.2s ease'
 }
 
 // Filter options
@@ -152,19 +157,28 @@ function BoardBar({ board, onFilterChange }) {
 
   return (
     <Box sx={{
-      backgroundColor: theme.palette.background.default,
+      background: (theme) => theme.palette.mode === 'dark'
+        ? 'linear-gradient(135deg, #2c3e50 0%, #34495e 100%)'
+        : 'linear-gradient(135deg, #0052cc 0%, #2684ff 50%, #0065ff 100%)',
       width: '100%',
       height: () => theme.trello.botBarHeight,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: 2,
-      paddingX: 2,
-      overflowX: 'auto'
+      paddingX: 3,
+      overflowX: 'auto',
+      boxShadow: '0 -2px 8px rgba(0,0,0,0.1)',
+      borderTop: (theme) => theme.palette.mode === 'dark'
+        ? '1px solid rgba(255,255,255,0.1)'
+        : 'none'
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <DashboardIcon sx={{ color: 'white' }} />
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <DashboardIcon sx={{
+            color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.contrastText',
+            fontSize: '28px'
+          }} />
           <Tooltip title={board?.description}>
             <Box>
               {/* Board Title - Editable only for owners */}
@@ -172,20 +186,25 @@ function BoardBar({ board, onFilterChange }) {
                 <ToggleFocusInput
                   value={board?.title}
                   onChangedValue={onUpdateBoardTitle}
-                  inputFontSize='16px'
+                  inputFontSize='18px'
                   sx={{
                     minWidth: '120px',
-                    '& .MuiOutlinedInput-input': { color: 'white', fontWeight: 'bold' }
+                    '& .MuiOutlinedInput-input': {
+                      color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.contrastText',
+                      fontWeight: 'bold',
+                      fontSize: '18px'
+                    }
                   }}
                 />
               ) : (
                 <Typography
                   variant="h6"
                   sx={{
-                    color: 'white',
+                    color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.contrastText',
                     fontWeight: 'bold',
                     minWidth: '120px',
-                    fontSize: '16px'
+                    fontSize: '18px',
+                    letterSpacing: '0.5px'
                   }}
                 >
                   {board?.title}
@@ -194,114 +213,114 @@ function BoardBar({ board, onFilterChange }) {
             </Box>
           </Tooltip>
         </Box>
-        <Chip sx={
-          MENU_STYLE
-        } icon={<VpnLockIcon />}
-          label={capitalizeFirstLetter(board?.type)}
-          clickable
-        />
-        {isOwner && (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 2 }}>
+          <Chip
+            sx={MENU_STYLE}
+            icon={<VpnLockIcon />}
+            label={capitalizeFirstLetter(board?.type)}
+          />
+          {isOwner && (
+            <Chip sx={
+              MENU_STYLE
+            } icon={<BarChartIcon />}
+              label="Dashboard"
+              clickable
+              onClick={navigateToDashboard}
+            />
+          )}
           <Chip sx={
             MENU_STYLE
-          } icon={<BarChartIcon />}
-            label="Dashboard"
+          } icon={<AddToDriveIcon />}
+            label="Add to Google Drive"
             clickable
-            onClick={navigateToDashboard}
           />
-        )}
-        <Chip sx={
-          MENU_STYLE
-        } icon={<AddToDriveIcon />}
-          label="Add to Google Drive"
-          clickable
-        />
-        <Chip sx={
-          MENU_STYLE
-
-        } icon={<BoltIcon />}
-          label="Automation"
-          clickable
-        />
-        <Chip sx={
-          MENU_STYLE
-        } icon={<FilterListIcon />}
-          label={getFilterLabel()}
-          clickable
-          onClick={handleFilterClick}
-          color={activeFilter !== 'all' ? 'primary' : 'default'}
-        />
-        <Menu
-          anchorEl={filterAnchorEl}
-          open={filterMenuOpen}
-          onClose={handleFilterClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'left',
-          }}
-        >
-          <MenuItem
-            selected={activeFilter === FILTER_OPTIONS.ALL}
-            onClick={() => handleFilterChange(FILTER_OPTIONS.ALL)}
+          <Chip sx={
+            MENU_STYLE
+          } icon={<BoltIcon />}
+            label="Automation"
+            clickable
+          />
+          <Chip sx={
+            MENU_STYLE
+          } icon={<FilterListIcon />}
+            label={getFilterLabel()}
+            clickable
+            onClick={handleFilterClick}
+            color={activeFilter !== 'all' ? 'primary' : 'default'}
+          />
+          <Menu
+            anchorEl={filterAnchorEl}
+            open={filterMenuOpen}
+            onClose={handleFilterClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'left',
+            }}
           >
-            <ListItemIcon>
-              <FilterListIcon fontSize="small" />
-            </ListItemIcon>
-            <ListItemText>All Cards</ListItemText>
-          </MenuItem>
-
-          <MenuItem
-            selected={activeFilter === FILTER_OPTIONS.COMPLETED}
-            onClick={() => handleFilterChange(FILTER_OPTIONS.COMPLETED)}
-          >
-            <ListItemIcon>
-              <CheckCircleIcon fontSize="small" color="success" />
-            </ListItemIcon>
-            <ListItemText>Completed Cards</ListItemText>
-          </MenuItem>
-
-          <MenuItem
-            selected={activeFilter === FILTER_OPTIONS.INCOMPLETE}
-            onClick={() => handleFilterChange(FILTER_OPTIONS.INCOMPLETE)}
-          >
-            <ListItemIcon>
-              <PendingIcon fontSize="small" color="primary" />
-            </ListItemIcon>
-            <ListItemText>In Progress Cards</ListItemText>
-          </MenuItem>
-
-          <MenuItem
-            selected={activeFilter === FILTER_OPTIONS.DUE_SOON}
-            onClick={() => handleFilterChange(FILTER_OPTIONS.DUE_SOON)}
-          >
-            <ListItemIcon>
-              <AccessTimeIcon fontSize="small" color="warning" />
-            </ListItemIcon>
-            <ListItemText>Due Soon</ListItemText>
-          </MenuItem>
-
-          <MenuItem
-            selected={activeFilter === FILTER_OPTIONS.OVERDUE}
-            onClick={() => handleFilterChange(FILTER_OPTIONS.OVERDUE)}
-          >
-            <ListItemIcon>
-              <AccessTimeIcon fontSize="small" color="error" />
-            </ListItemIcon>
-            <ListItemText>Overdue</ListItemText>
-          </MenuItem>
-
-          {activeFilter !== FILTER_OPTIONS.ALL && (
-            <MenuItem onClick={clearFilter}>
+            <MenuItem
+              selected={activeFilter === FILTER_OPTIONS.ALL}
+              onClick={() => handleFilterChange(FILTER_OPTIONS.ALL)}
+            >
               <ListItemIcon>
-                <ClearIcon fontSize="small" />
+                <FilterListIcon fontSize="small" />
               </ListItemIcon>
-              <ListItemText>Clear Filter</ListItemText>
+              <ListItemText>All Cards</ListItemText>
             </MenuItem>
-          )}
-        </Menu>
+
+            <MenuItem
+              selected={activeFilter === FILTER_OPTIONS.COMPLETED}
+              onClick={() => handleFilterChange(FILTER_OPTIONS.COMPLETED)}
+            >
+              <ListItemIcon>
+                <CheckCircleIcon fontSize="small" color="success" />
+              </ListItemIcon>
+              <ListItemText>Completed Cards</ListItemText>
+            </MenuItem>
+
+            <MenuItem
+              selected={activeFilter === FILTER_OPTIONS.INCOMPLETE}
+              onClick={() => handleFilterChange(FILTER_OPTIONS.INCOMPLETE)}
+            >
+              <ListItemIcon>
+                <PendingIcon fontSize="small" color="primary" />
+              </ListItemIcon>
+              <ListItemText>In Progress Cards</ListItemText>
+            </MenuItem>
+
+            <MenuItem
+              selected={activeFilter === FILTER_OPTIONS.DUE_SOON}
+              onClick={() => handleFilterChange(FILTER_OPTIONS.DUE_SOON)}
+            >
+              <ListItemIcon>
+                <AccessTimeIcon fontSize="small" color="warning" />
+              </ListItemIcon>
+              <ListItemText>Due Soon</ListItemText>
+            </MenuItem>
+
+            <MenuItem
+              selected={activeFilter === FILTER_OPTIONS.OVERDUE}
+              onClick={() => handleFilterChange(FILTER_OPTIONS.OVERDUE)}
+            >
+              <ListItemIcon>
+                <AccessTimeIcon fontSize="small" color="error" />
+              </ListItemIcon>
+              <ListItemText>Overdue</ListItemText>
+            </MenuItem>
+
+            {activeFilter !== FILTER_OPTIONS.ALL && (
+              <MenuItem onClick={clearFilter}>
+                <ListItemIcon>
+                  <ClearIcon fontSize="small" />
+                </ListItemIcon>
+                <ListItemText>Clear Filter</ListItemText>
+              </MenuItem>
+            )}
+          </Menu>
+        </Box>
       </Box>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
         {isOwner && (
@@ -310,16 +329,39 @@ function BoardBar({ board, onFilterChange }) {
               color="error"
               onClick={handleDeleteBoard}
               sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.2)',
-                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' }
+                bgcolor: (theme) => theme.palette.mode === 'dark'
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'rgba(255, 255, 255, 0.2)',
+                color: (theme) => theme.palette.mode === 'dark' ? 'error.light' : 'error.main',
+                borderRadius: '8px',
+                transition: 'all 0.2s ease',
+                '&:hover': {
+                  bgcolor: (theme) => theme.palette.mode === 'dark'
+                    ? 'rgba(255, 255, 255, 0.2)'
+                    : 'rgba(255, 255, 255, 0.3)',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }
               }}
             >
               <DeleteIcon />
             </IconButton>
           </Tooltip>
         )}
-        <InviteBoardUser boardId={board._id} />
-        <BoardUserGroup limit={5} boardUsers={board?.FE_allUsers} />
+        <Box sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          bgcolor: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(255,255,255,0.1)'
+            : 'rgba(255,255,255,0.2)',
+          borderRadius: '12px',
+          padding: '4px 8px',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <InviteBoardUser boardId={board._id} />
+          <BoardUserGroup limit={5} boardUsers={board?.FE_allUsers} />
+        </Box>
       </Box>
     </Box>
   )

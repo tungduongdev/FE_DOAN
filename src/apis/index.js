@@ -8,7 +8,8 @@ import authorizeAxiosInstace from '~/utils/authorizeAxios'
 //   //axios tra ket qua ve dang response.data
 //   return response.data
 // }
- const API_BE_URL = 'https://be-doan-8bvg.onrender.com/'
+const API_BE_URL = 'https://be-doan-8bvg.onrender.com/'
+// const API_BE_URL = 'http://localhost:8011/'
 
 export const updateBoard = async (boardId, updatedata) => {
   const response = await authorizeAxiosInstace.put(`${API_BE_URL}v1/boards/${boardId}`, updatedata)

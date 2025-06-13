@@ -4,11 +4,14 @@ import { genaratePlaceholderCard } from '~/utils/formatter'
 import { isEmpty } from 'lodash'
 import authorizeAxiosInstace from '~/utils/authorizeAxios'
 
+// const API_BE_URL = 'http://localhost:8011/'
+const API_BE_URL = 'https://be-doan-8bvg.onrender.com/'
+
 // các hành động gọi api hoặc xử lý dữ liệu không đồng bộ dùng middleware createAsyncThunk đi kèm với extraReducers
 export const fetchBoardDetailsApi = createAsyncThunk(
   'activeBoard/fetchActiveBoard',
   async (boardId) => {
-    const response = await authorizeAxiosInstace.get(`https://be-doan-8bvg.onrender.com/v1/boards/${boardId}`)
+    const response = await authorizeAxiosInstace.get(`${API_BE_URL}v1/boards/${boardId}`)
     return response.data
   }
 )

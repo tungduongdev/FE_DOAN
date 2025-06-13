@@ -1,4 +1,3 @@
-
 import { Box, Button } from '@mui/material'
 import React from 'react'
 import { toast } from 'react-toastify'
@@ -54,41 +53,95 @@ function ListColumns({ columns }) {
         height: '100%',
         overflowX: 'auto',
         overflowY: 'hidden',
+        px: 2,
+        gap: 1,
+        '&::-webkit-scrollbar': {
+          height: '8px'
+        },
         '&::-webkit-scrollbar-track': {
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          borderRadius: '4px',
           m: 2
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(255,255,255,0.3)',
+          borderRadius: '4px',
+          '&:hover': {
+            backgroundColor: 'rgba(255,255,255,0.5)'
+          }
         }
       }}>
         {columns?.map(column => (
-          <Column key={column._id} column={column} ></Column>
+          <Column key={column._id} column={column} />
         ))}
         {!openNewColumnForm
-          ? <Box onClick={toggleOpenNewColumnForm} sx={{
-            minWidth: '250px',
-            maxWidth: '250px',
-            mx: 2,
-            borderRadius: '6px',
-            height: 'fit-content',
-            bgcolor: '#ffffff3d'
-          }}>
+          ? <Box
+            onClick={toggleOpenNewColumnForm}
+            sx={{
+              minWidth: '280px',
+              maxWidth: '280px',
+              ml: 1,
+              borderRadius: '12px',
+              height: 'fit-content',
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'rgba(255,255,255,0.05)'
+                : 'rgba(255,255,255,0.9)',
+              border: (theme) => theme.palette.mode === 'dark'
+                ? '2px dashed rgba(255,255,255,0.2)'
+                : '2px dashed rgba(0,82,204,0.3)',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease-in-out',
+              backdropFilter: 'blur(10px)',
+              '&:hover': {
+                background: (theme) => theme.palette.mode === 'dark'
+                  ? 'rgba(255,255,255,0.1)'
+                  : 'rgba(255,255,255,0.9)',
+                border: (theme) => theme.palette.mode === 'dark'
+                  ? '2px dashed rgba(255,255,255,0.4)'
+                  : '2px dashed rgba(0,82,204,0.5)',
+                transform: 'translateY(-2px)',
+                boxShadow: (theme) => theme.palette.mode === 'dark'
+                  ? '0 4px 12px rgba(255,255,255,0.1)'
+                  : '0 4px 12px rgba(0,0,0,0.1)'
+              }
+            }}
+          >
             <Button sx={{
-              color: 'white',
+              color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'primary.main',
               width: '100%',
               justifyContent: 'flex-start',
               pl: 2.5,
-              py: 1,
-            }} startIcon={<NoteAddIcon></NoteAddIcon>}>Add new column</Button>
+              py: 2,
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: 'transparent'
+              }
+            }} startIcon={<NoteAddIcon />}>
+              Add new column
+            </Button>
           </Box>
           : <Box sx={{
-            minWidth: '250px',
-            maxWidth: '250px',
-            mx: 2,
-            borderRadius: '6px',
-            padding: 1,
+            minWidth: '280px',
+            maxWidth: '280px',
+            ml: 1,
+            borderRadius: '12px',
+            padding: 2,
             height: 'fit-content',
-            bgcolor: '#ffffff3d',
+            background: (theme) => theme.palette.mode === 'dark'
+              ? 'rgba(255,255,255,0.08)'
+              : 'rgba(255,255,255,0.95)',
+            backdropFilter: 'blur(10px)',
+            border: (theme) => theme.palette.mode === 'dark'
+              ? '1px solid rgba(255,255,255,0.12)'
+              : '1px solid rgba(0,0,0,0.08)',
+            boxShadow: (theme) => theme.palette.mode === 'dark'
+              ? '0 4px 12px rgba(0,0,0,0.3)'
+              : '0 4px 12px rgba(0,0,0,0.1)',
             display: 'flex',
             flexDirection: 'column',
-            gap: 1
+            gap: 2
           }}>
             <TextField
               label="Enter column title..."
@@ -99,46 +152,78 @@ function ListColumns({ columns }) {
               value={newColumnTitle}
               onChange={(e) => setNewColumnTitle(e.target.value)}
               sx={{
-                minWidth: '120px',
-                maxWidth: '250px',
                 '& label': {
-                  color: 'white'
+                  color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'text.primary',
+                  fontSize: '0.875rem'
                 },
                 '& input': {
-                  color: 'white'
+                  color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'text.primary',
+                  fontSize: '0.875rem'
                 },
                 '& label.Mui-focused': {
-                  color: 'white'
+                  color: 'primary.main'
                 },
                 '& .MuiOutlinedInput-root': {
+                  borderRadius: '8px',
                   '& fieldset': {
-                    borderColor: 'white'
+                    borderColor: (theme) => theme.palette.mode === 'dark'
+                      ? 'rgba(255,255,255,0.3)'
+                      : 'rgba(0,0,0,0.3)'
                   },
                   '&:hover fieldset': {
-                    borderColor: 'white'
+                    borderColor: 'primary.main'
                   },
                   '&.Mui-focused fieldset': {
-                    borderColor: 'white'
+                    borderColor: 'primary.main',
+                    borderWidth: '2px'
                   }
                 }
-              }} />
+              }}
+            />
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Button className='interceptor-loading' onClick={addNewColumn} variant='contained' color='success' size='small' sx={{
-                boxShadow: 'none',
-                border: '0.5px solid',
-                borderColor: (theme) => theme.palette.success.main,
-                '&:hover': {
-                  backgroundColor: (theme) => theme.palette.success.main
-                }
-              }} startIcon={<NoteAddIcon></NoteAddIcon>}>Add column</Button>
-              <CloseIcon onClick={() => setOpenNewColumnForm(false)}
+              <Button
+                className='interceptor-loading'
+                onClick={addNewColumn}
+                variant='contained'
+                color='success'
+                size='small'
                 sx={{
-                  color: 'white',
-                  cursor: 'pointer',
+                  borderRadius: '8px',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  flex: 1,
                   '&:hover': {
-                    color: (theme) => theme.palette.warning.light
+                    boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
+                    transform: 'translateY(-1px)'
                   }
-                }} />
+                }}
+                startIcon={<NoteAddIcon />}
+              >
+                Add Column
+              </Button>
+              <Box
+                onClick={() => setOpenNewColumnForm(false)}
+                sx={{
+                  p: 1,
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: (theme) => theme.palette.mode === 'dark' ? 'white' : 'text.secondary',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    color: 'error.main',
+                    backgroundColor: (theme) => theme.palette.mode === 'dark'
+                      ? 'rgba(255,255,255,0.1)'
+                      : 'rgba(0,0,0,0.05)',
+                    transform: 'scale(1.1)'
+                  }
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </Box>
             </Box>
           </Box>
         }

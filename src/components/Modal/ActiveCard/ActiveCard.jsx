@@ -49,6 +49,7 @@ import { clearAndHideCurrentActiveCard, selectCurrentActiveCard, updateCurrentAc
 import { updateCardDetailsApi } from '~/apis'
 import { updateCardInBoard } from '~/redux/activeBoard/activeBoardSlice'
 import { selectCurrentUser } from '~/redux/User/userSlide'
+import { socketIoInstance } from '~/socketClient'
 
 
 import { styled } from '@mui/material/styles'
@@ -186,9 +187,28 @@ function ActiveCard() {
 
   const onUpdateCardMember = async (incomingMemberInfor) => {
     // Gọi API...
-    await callApiUpdateCardDetails({ incomingMemberInfor })
+    const updatedCard = await callApiUpdateCardDetails({ incomingMemberInfor })
     if (!incomingMemberInfor) {
       toast.error('Update card member failed!')
+      return
+    }
+
+    // Emit socket event để thông báo real-time
+    if (updatedCard && incomingMemberInfor.userId !== currentUser._id) {
+      const memberUpdateData = {
+        cardId: activeCard._id,
+        cardTitle: activeCard.title,
+        boardId: activeCard.boardId,
+        memberAction: incomingMemberInfor.action,
+        userId: incomingMemberInfor.userId,
+        updatedBy: {
+          _id: currentUser._id,
+          displayName: currentUser.displayName,
+          email: currentUser.email
+        },
+        timestamp: Date.now()
+      }
+      socketIoInstance.emit('FE_CARD_MEMBER_UPDATED', memberUpdateData)
     }
   }
 

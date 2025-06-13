@@ -22,7 +22,10 @@ import {
   Avatar,
   Zoom,
   Fade,
-  styled
+  styled,
+  Button,
+  IconButton,
+  Tooltip
 } from '@mui/material'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import AssignmentIcon from '@mui/icons-material/Assignment'
@@ -31,7 +34,10 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import EqualizerIcon from '@mui/icons-material/Equalizer'
 import TimelineIcon from '@mui/icons-material/Timeline'
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts'
+import FileDownloadIcon from '@mui/icons-material/FileDownload'
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, LineChart, Line, ResponsiveContainer } from 'recharts'
+import { toast } from 'react-toastify'
+import dayjs from 'dayjs'
 
 const COLORS = ['#00C49F', '#0088FE', '#FFBB28', '#FF8042', '#A569BD', '#5DADE2'];
 
@@ -239,6 +245,99 @@ function TaskAnalytics() {
     }
   }
 
+  // Function to export data to Excel
+  const exportToExcel = () => {
+    try {
+      // Create CSV format data
+      const csvData = []
+
+      // Header
+      csvData.push([`Task Analytics Report - ${activeBoard.title}`, '', '', ''])
+      csvData.push([`Generated on: ${dayjs().format('DD/MM/YYYY HH:mm')}`, '', '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Summary
+      csvData.push(['Task Summary', '', '', ''])
+      csvData.push(['Total Tasks', taskStats.total, '', ''])
+      csvData.push(['Completed Tasks', taskStats.completed, '', ''])
+      csvData.push(['In Progress Tasks', taskStats.inProgress, '', ''])
+      csvData.push(['Pending Tasks', taskStats.pending, '', ''])
+      csvData.push(['Overdue Tasks', taskStats.overdue, '', ''])
+      csvData.push(['Completion Rate', `${completionRate}%`, '', ''])
+      csvData.push(['', '', '', ''])
+
+      // Column Statistics
+      csvData.push(['Column Statistics', '', '', ''])
+      csvData.push(['Column Name', 'Total Cards', 'Completed', 'Completion %'])
+      columnStats.forEach(column => {
+        csvData.push([
+          column.name,
+          column.total,
+          column.completed,
+          `${Math.round(column.percentage)}%`
+        ])
+      })
+      csvData.push(['', '', '', ''])
+
+      // Member Statistics
+      csvData.push(['Member Statistics', '', '', ''])
+      csvData.push(['Member Name', 'Email', 'Assigned Tasks', 'Completed Tasks'])
+      memberStats.forEach(member => {
+        csvData.push([
+          member.displayName,
+          member.email,
+          member.assigned,
+          member.completed
+        ])
+      })
+      csvData.push(['', '', '', ''])
+
+      // Task Details
+      csvData.push(['Task Details', '', '', ''])
+      csvData.push(['Card Title', 'Column', 'Due Date', 'Members'])
+
+      activeBoard.columns.forEach(column => {
+        const realCards = column.cards.filter(card => !card.FE_PlaceholderCard)
+        realCards.forEach(card => {
+          const memberNames = card.memberIds?.map(memberId => {
+            const member = activeBoard.FE_allUsers?.find(user => user._id === memberId)
+            return member?.displayName || 'Unknown User'
+          }).join(', ') || 'Unassigned'
+
+          csvData.push([
+            card.title,
+            column.title,
+            card.dueDate ? dayjs(card.dueDate).format('DD/MM/YYYY') : 'No due date',
+            memberNames
+          ])
+        })
+      })
+
+      // Convert to CSV string
+      const csvContent = csvData.map(row =>
+        row.map(cell => `"${cell}"`).join(',')
+      ).join('\n')
+
+      // Create and download file
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      const url = URL.createObjectURL(blob)
+
+      link.setAttribute('href', url)
+      link.setAttribute('download', `Task_Analytics_${activeBoard.title}_${dayjs().format('YYYY-MM-DD')}.csv`)
+      link.style.visibility = 'hidden'
+
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+
+      toast.success('Excel file exported successfully!')
+    } catch (error) {
+      console.error('Export error:', error)
+      toast.error('Failed to export Excel file')
+    }
+  }
+
   if (!activeBoard) {
     return null
   }
@@ -251,7 +350,31 @@ function TaskAnalytics() {
         <Typography variant="h5" sx={{ fontWeight: 600, color: '#3c4858', display: 'flex', alignItems: 'center', mb: 3 }}>
           <AssessmentIcon sx={{ mr: 1, color: '#1976d2' }} />
           Task Analytics
-          <Box sx={{ ml: 'auto' }}>
+          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Tooltip title="Export task analytics to Excel">
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FileDownloadIcon />}
+                onClick={exportToExcel}
+                sx={{
+                  background: 'linear-gradient(45deg, #4caf50 30%, #81c784 90%)',
+                  boxShadow: '0 3px 5px 2px rgba(76, 175, 80, .3)',
+                  color: 'white',
+                  fontWeight: 600,
+                  textTransform: 'none',
+                  borderRadius: 2,
+                  px: 2,
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, #388e3c 30%, #66bb6a 90%)',
+                    boxShadow: '0 4px 8px 3px rgba(76, 175, 80, .3)',
+                    transform: 'translateY(-1px)'
+                  }
+                }}
+              >
+                Export Excel
+              </Button>
+            </Tooltip>
             <StyledToggleButtonGroup
               value={timeRange}
               exclusive
@@ -368,7 +491,7 @@ function TaskAnalytics() {
                         <Cell key={`cell-${index}`} fill={['#ffffff', '#b9f6ca', '#e8f5e9'][index % 3]} />
                       ))}
                     </Pie>
-                    <Tooltip
+                    <RechartsTooltip
                       formatter={(value, name) => [`${value} tasks`, name]}
                       contentStyle={{
                         backgroundColor: 'rgba(255, 255, 255, 0.9)',
@@ -421,7 +544,7 @@ function TaskAnalytics() {
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip
+                      <RechartsTooltip
                         formatter={(value, name) => [`${value} tasks`, name]}
                         contentStyle={{
                           borderRadius: 8,
@@ -456,7 +579,7 @@ function TaskAnalytics() {
                         tick={{ fill: '#607d8b', fontSize: 12 }}
                       />
                       <YAxis tick={{ fill: '#607d8b', fontSize: 12 }} />
-                      <Tooltip
+                      <RechartsTooltip
                         contentStyle={{
                           borderRadius: 8,
                           boxShadow: '0 4px 16px rgba(0,0,0,0.1)',

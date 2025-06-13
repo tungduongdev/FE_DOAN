@@ -46,9 +46,15 @@ function Column({ column }) {
   } = useSortable({ id: column?._id, data: { ...column } })
   const dndKitClumnStyles = {
     transform: CSS.Translate.toString(transform),
-    transition,
+    transition: isDragging ? 'none' : transition,
     height: '100%',
-    opacity: isDragging ? 0.5 : undefined
+    opacity: isDragging ? 0.7 : undefined,
+    scale: isDragging ? 1.02 : 1,
+    rotate: isDragging ? '1deg' : '0deg',
+    zIndex: isDragging ? 998 : 'auto',
+    boxShadow: isDragging
+      ? '0 20px 40px rgba(0, 0, 0, 0.25), 0 10px 20px rgba(0, 0, 0, 0.15)'
+      : undefined
   }
   const [anchorEl, setAnchorEl] = React.useState(null)
   const open = Boolean(anchorEl)
@@ -151,14 +157,42 @@ function Column({ column }) {
   }
   return (
     <div ref={setNodeRef} style={dndKitClumnStyles} {...attributes} className="trello-column">
-      <Box {...listeners} sx={{ minWidth: '300px', maxWidth: '300px', bgcolor: '#eee', ml: 2, borderRadius: '6px', height: 'fit-content', maxHeight: (theme) => `calc(${theme.trello.boardContentHeigh} - ${theme.spacing(5)})` }}>
+      <Box {...listeners} sx={{
+        minWidth: '300px',
+        maxWidth: '300px',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'background.paper',
+        ml: 2,
+        borderRadius: '12px',
+        height: 'fit-content',
+        maxHeight: (theme) => `calc(${theme.trello.boardContentHeigh} - ${theme.spacing(5)})`,
+        boxShadow: (theme) => theme.palette.mode === 'dark'
+          ? '0 4px 6px rgba(0, 0, 0, 0.3)'
+          : '0 2px 12px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 82, 204, 0.08)',
+        border: (theme) => theme.palette.mode === 'dark'
+          ? '1px solid rgba(255, 255, 255, 0.12)'
+          : '1px solid rgba(0, 0, 0, 0.08)',
+        transition: 'all 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: (theme) => theme.palette.mode === 'dark'
+            ? '0 8px 16px rgba(0, 0, 0, 0.4)'
+            : '0 6px 20px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 82, 204, 0.12)'
+        }
+      }}>
         <Box sx={{
           height: (theme) => theme.trello.columnHeaderHeight,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           p: 2,
-          borderBottom: '1px solid #fff'
+          borderBottom: (theme) => theme.palette.mode === 'dark'
+            ? '1px solid rgba(255,255,255,0.12)'
+            : '1px solid rgba(0,0,0,0.08)',
+          borderTopLeftRadius: '12px',
+          borderTopRightRadius: '12px',
+          bgcolor: (theme) => theme.palette.mode === 'dark'
+            ? 'rgba(255,255,255,0.02)'
+            : 'rgba(0,0,0,0.02)'
         }}>
           {/* <Typography sx={{
             fontWeight: 'bold',

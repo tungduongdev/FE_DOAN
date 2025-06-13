@@ -1,0 +1,261 @@
+/* Dark/Light Mode Support CSS */
+
+/* Global transition for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Enhanced scrollbar styling for dark mode */
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+[data-mui-color-scheme="dark"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Enhanced light mode scrollbar */
+[data-mui-color-scheme="light"] *::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-mui-color-scheme="light"] *::-webkit-scrollbar-track {
+  background: rgba(0, 82, 204, 0.05);
+  border-radius: 4px;
+}
+
+[data-mui-color-scheme="light"] *::-webkit-scrollbar-thumb {
+  background: rgba(0, 82, 204, 0.2);
+  border-radius: 4px;
+}
+
+[data-mui-color-scheme="light"] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 82, 204, 0.4);
+}
+
+/* Card animations and interactions */
+.trello-card {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-mui-color-scheme="light"] .trello-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-mui-color-scheme="dark"] .trello-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Column animations */
+.trello-column {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced focus styles */
+[data-mui-color-scheme="dark"] .MuiFocusVisible-root {
+  outline: 2px solid rgba(144, 202, 249, 0.5);
+}
+
+[data-mui-color-scheme="light"] .MuiFocusVisible-root {
+  outline: 2px solid rgba(38, 132, 255, 0.5);
+}
+
+/* Loading animations that work with both themes */
+@keyframes pulse-dark {
+  0%, 100% {
+    opacity: 0.4;
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  50% {
+    opacity: 0.6;
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@keyframes pulse-light {
+  0%, 100% {
+    opacity: 0.4;
+    background-color: rgba(0, 82, 204, 0.08);
+  }
+  50% {
+    opacity: 0.6;
+    background-color: rgba(0, 82, 204, 0.15);
+  }
+}
+
+[data-mui-color-scheme="dark"] .loading-skeleton {
+  animation: pulse-dark 1.5s ease-in-out infinite;
+}
+
+[data-mui-color-scheme="light"] .loading-skeleton {
+  animation: pulse-light 1.5s ease-in-out infinite;
+}
+
+/* Enhanced button interactions for light mode */
+[data-mui-color-scheme="light"] .MuiButton-root {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-mui-color-scheme="light"] .MuiButton-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 82, 204, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+[data-mui-color-scheme="dark"] .MuiButton-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+}
+
+.MuiButton-root:active {
+  transform: translateY(0);
+}
+
+/* Card completion styling */
+.card-completed {
+  opacity: 0.7;
+}
+
+.card-completed .MuiTypography-root {
+  text-decoration: line-through;
+}
+
+/* Filter animations */
+.filter-active .trello-card {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.filter-completed-active .card-incomplete,
+.filter-incomplete-active .card-completed,
+.filter-due-soon-active .trello-card:not(.card-due-soon),
+.filter-overdue-active .trello-card:not(.card-overdue) {
+  opacity: 0.3;
+  transform: scale(0.95);
+}
+
+/* Enhanced glassmorphism effects */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-mui-color-scheme="dark"] .glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-mui-color-scheme="light"] .glass-effect {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 82, 204, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.08);
+}
+
+/* Improved drag and drop visuals */
+.dnd-dragging {
+  opacity: 0.5;
+  transform: rotate(5deg);
+  z-index: 1000;
+}
+
+.dnd-over {
+  transform: scale(1.02);
+}
+
+[data-mui-color-scheme="light"] .dnd-over {
+  box-shadow: 0 8px 32px rgba(0, 82, 204, 0.2);
+}
+
+[data-mui-color-scheme="dark"] .dnd-over {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Typography enhancements */
+.MuiTypography-root {
+  transition: color 0.3s ease;
+}
+
+/* Enhanced chip styling for light mode */
+[data-mui-color-scheme="light"] .MuiChip-root {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-mui-color-scheme="light"] .MuiChip-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 82, 204, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+[data-mui-color-scheme="dark"] .MuiChip-root:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Menu and dropdown enhancements */
+.MuiMenu-paper {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+[data-mui-color-scheme="dark"] .MuiMenu-paper {
+  background: rgba(66, 82, 110, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-mui-color-scheme="light"] .MuiMenu-paper {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(0, 82, 204, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 82, 204, 0.12), 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Icon button enhancements */
+.MuiIconButton-root {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-mui-color-scheme="light"] .MuiIconButton-root:hover {
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(0, 82, 204, 0.15);
+}
+
+[data-mui-color-scheme="dark"] .MuiIconButton-root:hover {
+  transform: scale(1.1);
+}
+
+/* Toast notifications styling */
+.Toastify__toast--dark {
+  background: linear-gradient(135deg, #42526e 0%, #253858 100%);
+}
+
+.Toastify__toast--light {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  color: #172b4d;
+  border: 1px solid rgba(0, 82, 204, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 82, 204, 0.1);
+}
+
+/* Light mode specific enhancements */
+[data-mui-color-scheme="light"] {
+  --shadow-light: 0 2px 8px rgba(0, 82, 204, 0.08);
+  --shadow-medium: 0 4px 16px rgba(0, 82, 204, 0.12);
+  --shadow-heavy: 0 8px 32px rgba(0, 82, 204, 0.16);
+}
+
+/* Text color improvements for light mode */
+[data-mui-color-scheme="light"] .MuiTypography-root {
+  color: #172b4d;
+}
+
+[data-mui-color-scheme="light"] .MuiTypography-body2 {
+  color: #5e6c84;
+} 

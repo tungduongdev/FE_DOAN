@@ -3,6 +3,7 @@ import { toast } from 'react-toastify'
 import authorizeAxiosInstace from '~/utils/authorizeAxios'
 
 const API_BE_URL = 'https://be-doan-8bvg.onrender.com/'
+// const API_BE_URL = 'http://localhost:8011/'
 
 // các hành động gọi api hoặc xử lý dữ liệu không đồng bộ dùng middleware createAsyncThunk đi kèm với extraReducers
 export const loginUserApi = createAsyncThunk(

@@ -1,0 +1,150 @@
+/* Enhanced Drag and Drop Styles */
+
+/* Hardware acceleration for better performance */
+.trello-column, 
+.MuiCard-root {
+  will-change: transform, opacity;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Smooth transitions for drag states */
+.dnd-dragging {
+  transition: none !important;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Drop zone indicators */
+.dnd-drop-zone {
+  position: relative;
+}
+
+.dnd-drop-zone::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 122, 255, 0.1);
+  border: 2px dashed rgba(0, 122, 255, 0.5);
+  border-radius: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+
+.dnd-drop-zone.dnd-over::before {
+  opacity: 1;
+}
+
+/* Card hover effects during drag */
+.dnd-card-placeholder {
+  background: rgba(0, 122, 255, 0.08) !important;
+  border: 2px dashed rgba(0, 122, 255, 0.3) !important;
+  opacity: 0.7;
+}
+
+/* Column highlight during card drag */
+.dnd-column-highlight {
+  background: rgba(0, 122, 255, 0.05) !important;
+  border-color: rgba(0, 122, 255, 0.2) !important;
+}
+
+/* Improved shadow for dragged items */
+.dnd-dragging-shadow {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3)) 
+          drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+}
+
+/* Smooth scale animations */
+.dnd-scale-animation {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dnd-scale-animation:hover {
+  transform: scale(1.02);
+}
+
+/* Loading state for API calls */
+.dnd-updating {
+  position: relative;
+  pointer-events: none;
+}
+
+.dnd-updating::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
+  border-radius: 8px;
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Dark mode adaptations */
+[data-mui-color-scheme="dark"] .dnd-drop-zone::before {
+  background: rgba(144, 202, 249, 0.1);
+  border-color: rgba(144, 202, 249, 0.5);
+}
+
+[data-mui-color-scheme="dark"] .dnd-card-placeholder {
+  background: rgba(144, 202, 249, 0.08) !important;
+  border-color: rgba(144, 202, 249, 0.3) !important;
+}
+
+[data-mui-color-scheme="dark"] .dnd-column-highlight {
+  background: rgba(144, 202, 249, 0.05) !important;
+  border-color: rgba(144, 202, 249, 0.2) !important;
+}
+
+[data-mui-color-scheme="dark"] .dnd-updating::after {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+/* Performance optimizations */
+.dnd-container {
+  contain: layout style paint;
+  transform: translateZ(0);
+}
+
+/* Disable transitions during active drag for better performance */
+.dnd-active * {
+  transition: none !important;
+}
+
+/* Smoother card list scrolling */
+.dnd-scrollable {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Improved visual feedback for valid drop targets */
+.dnd-valid-drop-target {
+  background: rgba(76, 175, 80, 0.1) !important;
+  border-color: rgba(76, 175, 80, 0.3) !important;
+  transform: scale(1.01);
+}
+
+/* Ghost image improvements */
+.dnd-ghost {
+  opacity: 0.5;
+  transform: rotate(5deg) scale(0.95);
+  filter: blur(1px);
+} 

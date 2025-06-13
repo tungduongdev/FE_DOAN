@@ -9,6 +9,13 @@ import { Experimental_CssVarsProvider as CssVarsProvider } from '@mui/material/s
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import { ConfirmProvider } from 'material-ui-confirm'
+
+// Enhanced dark/light mode styling
+import '~/styles/dark-light-mode.css'
+
+// Enhanced drag and drop styling
+import '~/styles/drag-improvements.css'
+
 //redux configuration
 import { Provider } from 'react-redux'
 import { store } from '~/redux/store.js'
@@ -29,9 +36,6 @@ const persistor = persistStore(store)
 // kỹ thuật inject store vào axios
 import { injectStore } from '~/utils/authorizeAxios'
 import ChatBot from '~/components/ChatBot/ChatBot'
-
-
-
 
 injectStore(store)
 
